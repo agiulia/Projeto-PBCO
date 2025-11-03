@@ -4,9 +4,14 @@ import re
 
 def inserir_usuarios():
     while True:
+        lista_usuarios = s.ler_usuarios()
         usuario = {}
 
         uid = input("Digite o ID do usuário: ")
+        if any(u.get('id') == uid for u in lista_usuarios):
+            print("Este ID já está em uso. Tente novamente.\n")
+            time.sleep(2)
+            continue
         usuario['id'] = uid
 
         nome = input("Digite o nome: ")
@@ -18,13 +23,12 @@ def inserir_usuarios():
 
         email = input("Digite o e-mail: ")
 
-        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+        if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', email):
             print("Formato de e-mail inválido. Tente novamente.\n")
             time.sleep(2)
             continue
 
-        usuarios_existentes = s.ler_usuario()
-        if any(u.get('e-mail') == email for u in usuarios_existentes):
+        if any(u.get('e-mail') == email for u in lista_usuarios):
             print("Este valor já está registrado no sistema.\n")
             time.sleep(2)
             continue
@@ -43,13 +47,14 @@ def inserir_usuarios():
             time.sleep(2)
             continue
         
-        s.gravar_usuario(usuario)
+        lista_usuarios.append(usuario)
+        s.gravar_usuarios(lista_usuarios)
         print("Usuário adicionado com sucesso!\n")
         time.sleep(2)
         break
 
 def listar_usuarios():
-    lista_usuarios = s.ler_usuario()
+    lista_usuarios = s.ler_usuarios()
     if not lista_usuarios:
         print("\nNão há usuários registrados no sistema.\n")
         time.sleep(2)
@@ -62,14 +67,14 @@ def listar_usuarios():
 
 def buscar_usuarios():
     b = input("Digite alguma informação do usuário que deseja encontrar: ")
-    lista_usuarios = s.ler_usuario()
+    lista_usuarios = s.ler_usuarios()
 
     if not lista_usuarios:
         print("Não há usuários registrados no sistema.")
         time.sleep(2)
         return
     
-    encontrado = any(b in i.values() for i in lista_usuarios)
+    encontrado = any(b == str(v) for i in lista_usuarios for v in i.values())
 
     if not encontrado:
         print("Usuário não encontrado.")
@@ -78,13 +83,12 @@ def buscar_usuarios():
             for chave in i.keys():
                 if b == i[chave]:
                     print(f"\n=== Informações Usuário ===\nID: {i['id']}\nNome: {i['nome']}\nE-mail: {i['e-mail']}\nPerfil: {i['perfil']}")
-
     time.sleep(2)
     return
 
 def atualizar_usuarios():
     email = input("Digite o e-mail do usuário que deseja atualizar: ")
-    lista_usuarios = s.ler_usuario()
+    lista_usuarios = s.ler_usuarios()
 
     usuario = next((u for u in lista_usuarios if u.get('e-mail') == email), None)
 
@@ -102,6 +106,9 @@ def atualizar_usuarios():
         usuario['nome'] = input("Digite o novo nome: ")
     elif o == "3":
         novo_email = input("Digite o novo e-mail: ")
+        if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', novo_email):
+            print("Formato de e-mail inválido. Tente novamente.\n")
+            return
         if any(u.get('e-mail') == novo_email for u in lista_usuarios if u is not usuario):
             print("Este e-mail já está registrado. Tente novamente.\n")
             return
@@ -131,7 +138,7 @@ def atualizar_usuarios():
 
 def remover_usuarios():
     email = input("Digite o e-mail do usuário que deseja remover: ")
-    lista_usuarios = s.ler_usuario()
+    lista_usuarios = s.ler_usuarios()
     novos_usuarios = [u for u in lista_usuarios if u.get('e-mail') != email]
     if len(novos_usuarios) == len(lista_usuarios):
         print("Usuário não encontrado.")
@@ -144,7 +151,7 @@ def remover_usuarios():
 
 def limpar_usuarios():
     while True:
-        i = input("Você quer excluir todos os dados permanentemente?").upper()
+        i = input("Você quer excluir todos os dados permanentemente? (SIM/NÃO): ").strip().upper()
         if i == "SIM":
             novos_usuarios = []
             s.gravar_usuarios(novos_usuarios)

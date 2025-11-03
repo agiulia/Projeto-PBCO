@@ -12,15 +12,6 @@ def ler_usuario():
         dados = []
     return dados
 
-def gravar_usuario(x):
-    os.makedirs(os.path.dirname(c), exist_ok = True)
-
-    lista_usuarios = ler_usuario()
-    lista_usuarios.append(x)
-    
-    with open(c, 'w', encoding = 'utf-8') as arq:
-        json.dump(lista_usuarios, arq, indent = 4, ensure_ascii = False)
-
 def gravar_usuarios(lista):
     os.makedirs(os.path.dirname(c), exist_ok=True)
     with open(c, 'w', encoding='utf-8') as arq:
