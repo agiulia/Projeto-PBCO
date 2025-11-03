@@ -1,4 +1,5 @@
 import utils as u
+import time
 
 def menu_usuarios():
     while True:
@@ -20,6 +21,7 @@ def menu_usuarios():
             u.limpar_usuarios()
         else:
             print("\nValor inválido. Tente novamente.")
+            time.sleep(2)
 
 
 def menu():
@@ -35,6 +37,5 @@ def menu():
             print("Estamos trabalhando nisso no momento.")
         else:
             print("Valor Inválido.")
+            time.sleep(2)
             continue
-
-menu()

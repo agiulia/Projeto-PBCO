@@ -1,6 +1,4 @@
 import json
-import ui
-import utils
+import ui as ui
 
-c = 'C:/meugerenciador/data/usuarios.json'
-menu()
+ui.menu()
