@@ -63,7 +63,6 @@ def listar_usuarios():
     for item in lista_usuarios:
         print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
     time.sleep(2)
-    return
 
 def buscar_usuarios():
     b = input("Digite alguma informação do usuário que deseja encontrar: ")
@@ -84,7 +83,6 @@ def buscar_usuarios():
                 if b == i[chave]:
                     print(f"\n=== Informações Usuário ===\nID: {i['id']}\nNome: {i['nome']}\nE-mail: {i['e-mail']}\nPerfil: {i['perfil']}")
     time.sleep(2)
-    return
 
 def atualizar_usuarios():
     email = input("Digite o e-mail do usuário que deseja atualizar: ")
@@ -101,32 +99,52 @@ def atualizar_usuarios():
     o = input("\nOpção: ")
 
     if o == "1":
-        usuario['id'] = input("Digite o novo ID: ")
+        while True:
+            uid = input("Digite o novo ID do usuário: ")
+            if any(u.get('id') == uid for u in lista_usuarios):
+                print("Este ID já está em uso. Tente novamente.\n")
+                time.sleep(2)
+                continue
+            usuario['id'] = uid
+            break
     elif o == "2":
-        usuario['nome'] = input("Digite o novo nome: ")
+        while True:
+            nome = input("Digite o novo nome: ")
+            if not nome or len(nome) < 3:
+                print("Por favor, insira um nome com no mínimo 3 caracteres.")
+                time.sleep(2)
+                continue
+            usuario['nome'] = nome
+            break
     elif o == "3":
-        novo_email = input("Digite o novo e-mail: ")
-        if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', novo_email):
-            print("Formato de e-mail inválido. Tente novamente.\n")
-            return
-        if any(u.get('e-mail') == novo_email for u in lista_usuarios if u is not usuario):
-            print("Este e-mail já está registrado. Tente novamente.\n")
-            return
-        usuario['e-mail'] = novo_email
+        while True:
+            novo_email = input("Digite o novo e-mail: ")
+            if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', novo_email):
+                print("Formato de e-mail inválido. Tente novamente.\n")
+                continue
+            if any(u.get('e-mail') == novo_email for u in lista_usuarios if u is not usuario):
+                print("Este e-mail já está registrado. Tente novamente.\n")
+                continue
+            usuario['e-mail'] = novo_email
+            break
     elif o == "4":
-        print("Selecione o novo perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
-        novo_perfil = input("\nOpção: ")
-        if novo_perfil == "1":
-            novo_perfil = "admin"
-        elif novo_perfil == "2":
-            novo_perfil = "user"
-        elif novo_perfil == "3":
-            novo_perfil = ""
-        else:
-            print("Valor inválido. Tente novamente.")
-            time.sleep(2)
-            return
-        usuario['perfil'] = novo_perfil
+        while True:
+            print("Selecione o novo perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
+            novo_perfil = input("\nOpção: ")
+            if novo_perfil == "1":
+                usuario['perfil'] = "admin"
+                break
+            elif novo_perfil == "2":
+                usuario['perfil'] = "user"
+                break
+            elif novo_perfil == "3":
+                usuario['perfil'] = ""
+                break
+            else:
+                print("Valor inválido. Tente novamente.")
+                time.sleep(2)
+                continue
+            
     else:
         print("Opção inválida.")
         time.sleep(2)
