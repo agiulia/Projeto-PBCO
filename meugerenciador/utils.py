@@ -1,6 +1,7 @@
 import storage as s
 import time
 import re
+from datetime import datetime
 
 def inserir_usuarios():
     while True:
@@ -184,3 +185,240 @@ def limpar_usuarios():
             print("Opção Inválida. Tente novamente.\n")
             time.sleep(2)
             continue
+
+def inserir_projetos ():
+    while True :
+        id=input('digite o ID do dono do projeto:').strip()
+        if id  in projeto['ID']:
+            print('ERRO!, Nome ja existente')
+        elif id not in projeto['ID']:
+            projeto['ID'].append (id)
+            break
+
+
+    while True:
+        nome_projeto=input("digite o nome do projeto:").strip ().lower()
+        if nome_projeto in projeto['nome']:
+             print('ERRO!, Nome ja existente')
+        elif nome_projeto not in projeto['nome']:
+             projeto['nome'].append (nome_projeto)
+             break
+    while True:
+        descriçao_projeto=input("faça uma leve descrição do  projeto:"). strip().lower()
+        projeto['descriçao'].append (descriçao_projeto)
+        print('Descrição do projeto inserida corretamente')
+        break
+
+
+       
+    while True:
+        try:
+            data_inicio = input("de a data de início:").strip()
+            data_fim= input("de a data de fim:").strip()
+            data_inicio=datetime.strptime(data_inicio,"%d/%m/%Y")
+            data_fim=datetime.strptime(data_fim,"%d/%m/%Y")
+            if data_inicio> data_fim :
+                print ('data iválida digite uma nova data')
+            else:
+                print ('data válida')
+                print ('\n data adiconada com sucesso')
+                break
+        except ValueError:
+                print ('Erro: Formato inválido! Use dd/mm/aaaa (ex: 25/12/2025)\n')
+
+
+
+
+   
+   
+    projeto['data_inicio'].append(data_inicio)
+    projeto['data_fim'].append (data_fim)
+    return 'o projeto foi inserido corretamente'
+
+def listar_projetos():
+    print (projeto['ID'])
+    print (projeto['nome'])
+    print (projeto['descriçao'])
+    print (projeto['data_fim'])
+
+def buscar_projetos ():
+    while True:
+        print ('como voce prefere buscar seu projeto: \n[1] por ID \n[2] por nome \n[3] por descrição \n[4] por data de início \n[5] por data de fim\n[0] sair da busca')
+        menu_busca=input ('digite uma opção:')
+        if(menu_busca=='1'):
+            i=input('digite o ID que do projeto que voce deseja achar')
+            if i in projeto['ID']:
+                index_i=projeto['ID'].index (i)
+                print ('projeto encontrado com seucesso')
+                print (projeto['ID'][index_i])
+                print (projeto['nome'][index_i])
+                print (projeto['descrição'][index_i])
+                print (projeto['data_inicio'][index_i])
+                print (projeto['data_fim'][index_i])
+                break
+            else:
+                print('projeto não encontrado digite novamente')
+
+
+        elif (menu_busca=='2'):
+            x=input('digite o nome do projeto que voce deseja buscar:').lower()
+            if x in projeto['nome']:
+                index_x=projeto['nome'].index(x)
+                print ('projeto encontado com sucesso')
+                print (projeto['ID'][index_x])
+                print (projeto['nome'][index_x])
+                print (projeto['descriçao'][index_x])
+                print (projeto['data_inicio'][index_x])
+                print (projeto['data_fim'][index_x])
+                break
+            else:
+                print('ERRO!,projeto não encontrado')
+               
+        elif (menu_busca=='3'):
+                y= input('digite a descrição do projeto que voce deseja buscar:').lower().strip()
+                if y in projeto['descriçao']:
+                    index_y=projeto['descriçao'].index(y)
+                    print (projeto['ID'][index_y])
+                    print (projeto['nome'][index_y])
+                    print (projeto['descriçao'][index_y])
+                    print (projeto['data_inicio'][index_y])
+                    print (projeto['data_fim'][index_y])
+                    break
+                else:
+                    print('ERRO!,projeto não encontrado')
+                   
+        elif (menu_busca=='4'):
+                data_i= input('de a da data de início do projeto que voce deseja buscar: ').strip()
+                data_i=datetime.strptime(data_i,'%d/%m/%Y')
+                while True :
+                    if projeto['data_inicio'].count(data_i)>1 :
+                        repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID por exemplo?(digite 1 para sim e 2 para não)').strip()
+                        if repetido=='1':
+                            print (buscar())
+                            break
+                        elif repetido=='2':
+                            print('então não posso te ajudar. Desculpe')
+                            break
+                        else:
+                            print('nenhuma opção válida foi digitada, peço que digite novamente.')
+                if data_i in projeto['data_inicio']:
+                    index_data_i=projeto['data_inicio'].index(data_i)
+                    print ('projeto encontado com sucesso')
+                    print (projeto['ID'][index_data_i])
+                    print (projeto['nome'][index_data_i])
+                    print (projeto['descriçao'][index_data_i])
+                    print (projeto['data_inicio'][index_data_i])
+                    print (projeto['data_fim'][index_data_i])
+                    break
+                else:
+                    print('ERRO!,projeto não encontrado')
+                   
+
+
+
+
+        elif (menu_busca=='5'):
+                data_f= input('de a data de fim do projeto:').strip()
+                data_f=datetime.strptime(data_f,'%d/%m/%Y')
+                while True :
+                    if projeto['data_fim'].count(data_f)>1 :
+                        repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID do dono do projeto por exemplo?(digite 1 para sim e 2 para não)').strip()
+                        if repetido=='1':
+                            print (buscar())
+                            break
+                        elif repetido=='2':
+                            print('então não posso te ajudar. Desculpe')
+                            break
+                        else:
+                            print('nenhuma opção válida foi digitada, peço que digite novamente.')
+
+
+                if data_f in projeto['data_fim']:
+                    index_data_f=projeto['data_fim'].index(data_f)
+                    print ('projeto encontado com sucesso')
+                    print (projeto['nome'][index_data_f])
+                    print (projeto['descriçao'][index_data_f])
+                    print (projeto['data_inicio'][index_data_f])
+                    print (projeto['data_fim'][index_data_f])
+                    break
+                else:
+                    print('ERRO!,projeto não encontrado')
+                   
+        elif(menu_busca=='0'):
+             break
+        else:
+             print ('voce digitou nenhuma alternativa')
+             
+def atualizar_projetos ():
+    print(buscar())
+    while True:
+        print('qual parte do seu projeto voce gostaria de atualizar?. \n[1] Nome, \n[2] descrição, \n[3] data de início, \n[4] data de fim \n[0] sair da atualização')
+        atualizar_projeto = input('digite uma opção:')
+        if (atualizar_projeto=='0'):
+            break
+        while True :    
+            antigo_nome=input('digite o nome do projeto que voce deseja substituir').strip().lower()
+            if(antigo_nome in projeto['nome']):
+                index_x= projeto['nome'].index(antigo_nome)
+                x1= input('digite o novo nome do projeto').strip().lower()
+                projeto['nome'][index_x]=x1
+                print ('nome do projeto substituido perfeitamente')
+                break
+
+
+
+
+
+
+
+
+            elif (atualizar_projeto== '2'):
+                antiga_descricao=input('digite a   descrição  que voce deseja substituir:').strip().lower()
+                if( antiga_descricao in projeto['descrição']):
+                    index_d= projeto['descrição'].index(antiga_descricao)
+                    x2= input('digite o novo nome da descrição').strip().lower()
+                    projeto['descrição'][index_d]=x2
+                    print ('descrição do projeto substituida perfeitamente')
+                    break
+
+
+
+
+
+
+
+
+                elif (atualizar_projeto== '3'):
+                    antiga_data_i=input('digite a da data inicial  que voce deseja substituir:(formato DD/MM/AAAA)')
+                    if( antiga_data_i in projeto['data_inicio']):
+                        index_data_i= projeto['data_inicio'].index(antiga_data_i)
+                        x3= input('digite a nova data inicial formato DD/MM/AAAA').strip()
+                        x33=datetime.strptime(x3,"%d/%m/%Y")
+                        projeto['data_inicio'][index_data_i]=x33
+                        print ('data inicial do projeto substituida perfeitamente')
+                        break
+                elif atualizar_projeto == '4':
+                    antiga_data_f = input('Digite a data final que deseja substituir (DD/MM/AAAA): ').strip()
+   
+                if antiga_data_f in projeto['data_fim']:
+                    index_data_f = projeto['data_fim'].index(antiga_data_f)
+                    projeto['data_fim'][index_data_f] = datetime.strptime(
+                    input('Digite a nova data final (DD/MM/AAAA): ').strip(),"%d/%m/%Y")
+                    print('Data final do projeto substituída perfeitamente!')
+                    break
+                else:
+                    print('Data final não encontrada!')
+
+def remover_projetos ():
+    remover=input('digite o nome do projeto que voce gostaria de remover:').lower().strip()
+    if remover in projeto['nome']:
+        indice_remover=projeto['nome'].index(remover)
+        for i in projeto:
+             del projeto['nome'][i][indice_remover]
+        print('projeto removido com sucesso')
+    else:
+         print('projeto não encontrado')
+
+def limpar_projetos():
+     for chave in projeto:
+        projeto[chave].clear()
