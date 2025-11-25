@@ -20,6 +20,9 @@ def validar_email(email, lista_usuarios):
 def validar_perfil(opcao):
     return opcao in ("1", "2", "3")
 
+def validar_lista(lista_usuarios):
+        return bool(lista_usuarios)
+
 def validar_data(data_texto):
     try:
         datetime.strptime(data_texto, '%d/%m/%Y')

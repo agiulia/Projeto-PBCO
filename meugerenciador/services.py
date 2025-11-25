@@ -1,66 +1,41 @@
 import storage as s
 import services as srv
+import models as m
+import utils as u
 import time
 from datetime import datetime
 
-def inserir_usuarios():
-    while True:
-        lista_usuarios = s.ler_usuarios()
-        usuario = {}
+def inserir_usuario(uid, nome, email, perfil_opcao):
+    lista = s.ler_usuarios()
 
-        uid = input("Digite o ID do usuário: ").strip()
-        if srv.validar_uid(uid, lista_usuarios):
-            usuario['id'] = uid
-            break
-        print("Este ID já está em uso. Tente novamente.\n")
-        time.sleep(2)
+    if not u.validar_uid(uid, lista):
+        return False, "\nID já está em uso.\n"
 
-    while True:
-        nome = input("Digite o nome: ").strip()
-        if srv.validar_nome(nome):
-            usuario['nome'] = nome
-            break
-        print("Nome inválido. Tente novamente.\n")
-        time.sleep(2)
+    if not u.validar_nome(nome):
+        return False, "\nNome inválido (mínimo 3 caracteres).\n"
 
-    while True:
-        email = input("Digite o e-mail: ").strip()
-        if srv.validar_email(email, lista_usuarios):
-            usuario['e-mail'] = email
-            break
-        print("E-mail inválido ou já registrado. Tente novamente.\n")
-        time.sleep(2)
+    if not u.validar_email(email, lista):
+        return False, "\nE-mail inválido ou já registrado.\n"
 
-    while True:
-        print("Selecione o perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
-        perfil = input("\nOpção: ")
-        if perfil == "1":
-            usuario['perfil'] = "admin"
-        elif perfil == "2":
-            usuario['perfil'] = "user"
-        elif perfil == "3":
-            usuario['perfil'] = ""
-        else:
-            print("Valor inválido. Tente novamente.\n")
-            time.sleep(2)
-            continue
-        
-        lista_usuarios.append(usuario)
-        s.gravar_usuarios(lista_usuarios)
-        print("Usuário adicionado com sucesso!\n")
-        time.sleep(2)
-        break
+    perfil = u.validar_perfil(perfil_opcao)
+    if perfil is None:
+        return False, "\nPerfil inválido.\n"
+
+    usuario = m.novo_usuario(uid, nome, email, perfil)
+
+    lista.append(usuario)
+    s.gravar_usuarios(lista)
+
+    return True, "\nUsuário inserido com sucesso!\n"
 
 def listar_usuarios():
     lista_usuarios = s.ler_usuarios()
-    if not lista_usuarios:
-        print("\nNão há usuários registrados no sistema.\n")
-        time.sleep(2)
-        return
-    print("\n=== Lista de Usuários ===\n")
-    for item in lista_usuarios:
-        print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
-    time.sleep(2)
+
+    if not u.validar_lista(lista_usuarios):
+        return False, "Não há usuários registrados no sistema."
+
+    return True, lista_usuarios
+
 
 def buscar_usuarios():
     b = input("Digite alguma informação do usuário que deseja encontrar: ")
@@ -199,7 +174,6 @@ def inserir_projetos ():
         projeto['descriçao'].append (descriçao_projeto)
         print('Descrição do projeto inserida corretamente')
         break
-
 
        
     while True:

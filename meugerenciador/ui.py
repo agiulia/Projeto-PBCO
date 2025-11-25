@@ -1,5 +1,33 @@
-import utils as u
+import services as srv
 import time
+
+def ms_iu():
+    uid = input("Digite o ID do usuário: ").strip()
+    nome = input("Digite o nome: ").strip()
+    email = input("Digite o e-mail: ").strip()
+
+    print("Selecione o perfil:")
+    print("[1] Admin\n[2] User\n[3] Campo vazio")
+    perfil_opcao = input("Opção: ").strip()
+
+    ok, msg = srv.inserir_usuario(uid, nome, email, perfil_opcao)
+    print(msg)
+    time.sleep(2)
+
+def ms_lu():
+    sucesso, resultado = srv.listar_usuarios_service()
+
+    if not sucesso:
+        print("\nNão há usuários registrados no sistema.\n")
+        time.sleep(2)
+        return
+
+    print("\n=== Lista de Usuários ===\n")
+    for item in resultado:
+        print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
+
+    print("\nUsuários listados com sucesso.\n")
+    time.sleep(2)
 
 def menu_usuarios():
     while True:
@@ -8,17 +36,17 @@ def menu_usuarios():
         if o == "0":
             break
         elif o == "1":
-            u.inserir_usuarios()
+            ms_iu()
         elif o == "2":
-            u.listar_usuarios()
+            srv.listar_usuarios()
         elif o == "3":
-            u.buscar_usuarios()
+            srv.buscar_usuarios()
         elif o == "4":
-            u.atualizar_usuarios()
+            srv.atualizar_usuarios()
         elif o == "5":
-            u.remover_usuarios()
+            srv.remover_usuarios()
         elif o == "6":
-            u.limpar_usuarios()
+            srv.limpar_usuarios()
         else:
             print("\nValor inválido. Tente novamente.")
             time.sleep(2)
@@ -30,17 +58,17 @@ def menu_projetos():
         if o == '0':
             break
         elif o =='1':
-            u.inserir_projetos()
+            srv.inserir_projetos()
         elif o =='2':
-            u.listar_projetos()
+            srv.listar_projetos()
         elif o =='3':
-            u.buscar_projetos ()
+            srv.buscar_projetos ()
         elif o =='4':
-            u.atualizar_projetos ()
+            srv.atualizar_projetos ()
         elif o =='5':
-            u.remover_projetos()
+            srv.remover_projetos()
         elif o == '6':
-            u.limpar_projetos()
+            srv.limpar_projetos()
         else:
             print("\nValor inválido. Tente novamente.")
             time.sleep(2)
