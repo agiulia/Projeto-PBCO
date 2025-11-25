@@ -1,6 +1,6 @@
 import storage as s
+import services as srv
 import time
-import re
 from datetime import datetime
 
 def inserir_usuarios():
@@ -8,34 +8,31 @@ def inserir_usuarios():
         lista_usuarios = s.ler_usuarios()
         usuario = {}
 
-        uid = input("Digite o ID do usuário: ")
-        if any(u.get('id') == uid for u in lista_usuarios):
-            print("Este ID já está em uso. Tente novamente.\n")
-            time.sleep(2)
-            continue
-        usuario['id'] = uid
+        uid = input("Digite o ID do usuário: ").strip()
+        if srv.validar_uid(uid, lista_usuarios):
+            usuario['id'] = uid
+            break
+        print("Este ID já está em uso. Tente novamente.\n")
+        time.sleep(2)
 
-        nome = input("Digite o nome: ")
-        if not nome or len(nome) < 3:
-            print("Por favor, insira um nome com no mínimo 3 caracteres.")
-            time.sleep(2)
-            continue
-        usuario['nome'] = nome
+    while True:
+        nome = input("Digite o nome: ").strip()
+        if srv.validar_nome(nome):
+            usuario['nome'] = nome
+            break
+        print("Nome inválido. Tente novamente.\n")
+        time.sleep(2)
 
-        email = input("Digite o e-mail: ")
+    while True:
+        email = input("Digite o e-mail: ").strip()
+        if srv.validar_email(email, lista_usuarios):
+            usuario['e-mail'] = email
+            break
+        print("E-mail inválido ou já registrado. Tente novamente.\n")
+        time.sleep(2)
 
-        if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', email):
-            print("Formato de e-mail inválido. Tente novamente.\n")
-            time.sleep(2)
-            continue
-
-        if any(u.get('e-mail') == email for u in lista_usuarios):
-            print("Este valor já está registrado no sistema.\n")
-            time.sleep(2)
-            continue
-        usuario['e-mail'] = email
-
-        print("Selecione o novo perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
+    while True:
+        print("Selecione o perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
         perfil = input("\nOpção: ")
         if perfil == "1":
             usuario['perfil'] = "admin"
@@ -102,32 +99,27 @@ def atualizar_usuarios():
     if o == "1":
         while True:
             uid = input("Digite o novo ID do usuário: ")
-            if any(u.get('id') == uid for u in lista_usuarios):
-                print("Este ID já está em uso. Tente novamente.\n")
-                time.sleep(2)
-                continue
-            usuario['id'] = uid
-            break
+            if srv.validar_uid(uid, lista_usuarios):
+                usuario['id'] = uid
+                break
+            print("Este ID já está em uso. Tente novamente.\n")
+            time.sleep(2)
     elif o == "2":
         while True:
             nome = input("Digite o novo nome: ")
-            if not nome or len(nome) < 3:
-                print("Por favor, insira um nome com no mínimo 3 caracteres.")
-                time.sleep(2)
-                continue
-            usuario['nome'] = nome
-            break
+            if srv.validar_nome(nome):
+                usuario['nome'] = nome
+                break
+            print("Nome inválido. Tente novamente.\n")
+            time.sleep(2)
     elif o == "3":
         while True:
             novo_email = input("Digite o novo e-mail: ")
-            if not re.match(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', novo_email):
-                print("Formato de e-mail inválido. Tente novamente.\n")
-                continue
-            if any(u.get('e-mail') == novo_email for u in lista_usuarios if u is not usuario):
-                print("Este e-mail já está registrado. Tente novamente.\n")
-                continue
-            usuario['e-mail'] = novo_email
-            break
+            if srv.validar_email(email, lista_usuarios):
+                usuario['e-mail'] = email
+                break
+            print("E-mail inválido ou já registrado. Tente novamente.\n")
+            time.sleep(2)
     elif o == "4":
         while True:
             print("Selecione o novo perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
@@ -162,11 +154,10 @@ def remover_usuarios():
     if len(novos_usuarios) == len(lista_usuarios):
         print("Usuário não encontrado.")
         time.sleep(2)
-        return
-    
-    s.gravar_usuarios(novos_usuarios)
-    print(f"Usuário com e-mail '{email}' removido com sucesso!")
-    time.sleep(2)
+    else:
+        s.gravar_usuarios(novos_usuarios)
+        print(f"Usuário com e-mail '{email}' removido com sucesso!")
+        time.sleep(2)
 
 def limpar_usuarios():
     while True:
@@ -226,20 +217,20 @@ def inserir_projetos ():
         except ValueError:
                 print ('Erro: Formato inválido! Use dd/mm/aaaa (ex: 25/12/2025)\n')
 
-
-
-
-   
-   
     projeto['data_inicio'].append(data_inicio)
     projeto['data_fim'].append (data_fim)
     return 'o projeto foi inserido corretamente'
 
 def listar_projetos():
-    print (projeto['ID'])
-    print (projeto['nome'])
-    print (projeto['descriçao'])
-    print (projeto['data_fim'])
+    lista_projetos = s.ler_projetos()
+    if not lista_projetos:
+        print("\nNão há projetos registrados no sistema.\n")
+        time.sleep(2)
+        return
+    print("\n=== Lista de Projetos ===\n")
+    for item in lista_projetos:
+        print(f"Nome: {item['nome']}\nDescrição: {item['descricao']}\nID Responsável: {item['id']}\nData Início: {item['inicial']}\nData Fim: {item['fim']}\n")
+    time.sleep(2)
 
 def buscar_projetos ():
     while True:
@@ -285,10 +276,10 @@ def buscar_projetos ():
                     print (projeto['data_fim'][index_y])
                     break
                 else:
-                    print('ERRO!,projeto não encontrado')
+                    print('Projeto não encontrado.')
                    
         elif (menu_busca=='4'):
-                data_i= input('de a da data de início do projeto que voce deseja buscar: ').strip()
+                data_i= input('Informe o início do projeto que voce deseja buscar: ').strip()
                 data_i=datetime.strptime(data_i,'%d/%m/%Y')
                 while True :
                     if projeto['data_inicio'].count(data_i)>1 :
@@ -311,11 +302,7 @@ def buscar_projetos ():
                     print (projeto['data_fim'][index_data_i])
                     break
                 else:
-                    print('ERRO!,projeto não encontrado')
-                   
-
-
-
+                    print('Projeto não encontrado. Tente novamente.')
 
         elif (menu_busca=='5'):
                 data_f= input('de a data de fim do projeto:').strip()
@@ -365,13 +352,6 @@ def atualizar_projetos ():
                 print ('nome do projeto substituido perfeitamente')
                 break
 
-
-
-
-
-
-
-
             elif (atualizar_projeto== '2'):
                 antiga_descricao=input('digite a   descrição  que voce deseja substituir:').strip().lower()
                 if( antiga_descricao in projeto['descrição']):
@@ -380,13 +360,6 @@ def atualizar_projetos ():
                     projeto['descrição'][index_d]=x2
                     print ('descrição do projeto substituida perfeitamente')
                     break
-
-
-
-
-
-
-
 
                 elif (atualizar_projeto== '3'):
                     antiga_data_i=input('digite a da data inicial  que voce deseja substituir:(formato DD/MM/AAAA)')
@@ -410,9 +383,9 @@ def atualizar_projetos ():
                     print('Data final não encontrada!')
 
 def remover_projetos ():
-    remover=input('digite o nome do projeto que voce gostaria de remover:').lower().strip()
+    remover = input('Digite o nome do projeto que voce gostaria de remover:').lower().strip()
     if remover in projeto['nome']:
-        indice_remover=projeto['nome'].index(remover)
+        indice_remover = projeto['nome'].index(remover)
         for i in projeto:
              del projeto['nome'][i][indice_remover]
         print('projeto removido com sucesso')
