@@ -1,4 +1,5 @@
 import services as srv
+import utils as u
 import time
 
 def ms_iu():
@@ -29,6 +30,94 @@ def ms_lu():
     print("\nUsuários listados com sucesso.\n")
     time.sleep(2)
 
+def ms_bu():
+    b = input("Digite o e-mail do usuário que deseja encontrar: ")
+    sucesso, resultado = srv.buscar_usuarios(b)
+
+    if not sucesso:
+        print("\nNão há usuários registrados no sistema.\n")
+        time.sleep(2)
+        return
+
+    if not resultado:
+        print("\nNenhum usuário encontrado com as informações fornecidas.\n")
+        time.sleep(2)
+        return
+
+    print("\n=== Usuário Encontrado ===\n")
+    for item in resultado:
+        print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
+
+    print("\nBusca concluída com sucesso.\n")
+    time.sleep(2)
+
+def ms_au():
+    email = input("Digite o e-mail do usuário que deseja atualizar: ")
+
+    print("\nO que deseja alterar?")
+    print("[1] ID\n[2] Nome\n[3] E-mail\n[4] Perfil")
+    opcao = input("\nOpção: ")
+
+    campos = {
+        "1": "id",
+        "2": "nome",
+        "3": "email",
+        "4": "perfil"
+    }
+
+    if opcao not in campos:
+        print("Opção inválida.")
+        time.sleep(2)
+        return
+
+    campo = campos[opcao]
+
+    if campo == "perfil":
+        print("\nSelecione o novo perfil:")
+        print("[1] Admin\n[2] User\n[3] Campo vazio")
+        v = input("\nOpção: ")
+        novo_valor = {"1": "admin", "2": "user", "3": ""}.get(v)
+        if novo_valor is None:
+            print("Perfil inválido.")
+            time.sleep(2)
+            return
+    else:
+        novo_valor = input(f"Digite o novo valor para {campo}: ")
+
+    sucesso, resposta = srv.atualizar_usuarios(email, campo, novo_valor)
+
+    if not sucesso:
+        print(resposta)
+        time.sleep(2)
+        return
+
+    usuario = resposta
+    print("\nUsuário atualizado com sucesso!")
+    print(f"ID: {usuario['id']}\nNome: {usuario['nome']}\nE-mail: {usuario['e-mail']}\nPerfil: {usuario['perfil']}")
+    time.sleep(2)
+
+def ms_ru():
+    email = input("Digite o e-mail do usuário que deseja remover: ")
+    x, resultado = srv.remover_usuarios(email)
+    print(resultado)
+    time.sleep(2)
+
+def ms_lru():
+    while True:
+        resposta = input("Você quer excluir todos os dados permanentemente? (SIM/NÃO): ").strip().upper()
+
+        confirmacao = u.validar_confirmacao(resposta)
+
+        if confirmacao is None:
+            print("Opção inválida. Tente novamente.\n")
+            time.sleep(2)
+            continue
+
+        sucesso, mensagem = srv.limpar_usuarios_service(confirmacao)
+        print(mensagem)
+        time.sleep(2)
+        break
+
 def menu_usuarios():
     while True:
         print("\n=== USUÁRIOS ===\n[1] Inserir usuário\n[2] Listar todos os usuários\n[3] Buscar usuário\n[4] Atualizar dados de um usuário\n[5] Remover um usuário\n[6] Remover TODOS os usuários\n[0] Sair")
@@ -38,13 +127,13 @@ def menu_usuarios():
         elif o == "1":
             ms_iu()
         elif o == "2":
-            srv.listar_usuarios()
+            ms_lu()
         elif o == "3":
-            srv.buscar_usuarios()
+            ms_bu()
         elif o == "4":
-            srv.atualizar_usuarios()
+            ms_au()
         elif o == "5":
-            srv.remover_usuarios()
+            ms_ru()
         elif o == "6":
             srv.limpar_usuarios()
         else:
