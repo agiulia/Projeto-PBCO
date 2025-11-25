@@ -113,7 +113,7 @@ def ms_lru():
             time.sleep(2)
             continue
 
-        sucesso, mensagem = srv.limpar_usuarios_service(confirmacao)
+        x, mensagem = srv.limpar_usuarios_service(confirmacao)
         print(mensagem)
         time.sleep(2)
         break
