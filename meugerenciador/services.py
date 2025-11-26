@@ -28,7 +28,6 @@ def inserir_usuario(uid, nome, email, perfil_opcao):
 
     return True, "\nUsuário inserido com sucesso!\n"
 
-
 def listar_usuarios():
     lista_usuarios = s.ler_usuarios()
 
