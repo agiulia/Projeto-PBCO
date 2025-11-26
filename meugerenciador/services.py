@@ -5,7 +5,7 @@ import utils as u
 import time
 from datetime import datetime
 
-def inserir_usuario(uid, nome, email, perfil_opcao):
+def inserir_usuario(uid, nome, email, perfil_opcao): 
     lista = s.ler_usuarios()
 
     if not u.validar_uid(uid, lista):
@@ -28,10 +28,11 @@ def inserir_usuario(uid, nome, email, perfil_opcao):
 
     return True, "\nUsuário inserido com sucesso!\n"
 
+
 def listar_usuarios():
     lista_usuarios = s.ler_usuarios()
 
-    if not u.validar_lista(lista_usuarios):
+    if u.validar_lista(lista_usuarios):
         return False, "Não há usuários registrados no sistema."
 
     return True, lista_usuarios

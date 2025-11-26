@@ -18,10 +18,11 @@ def validar_email(email, lista_usuarios):
     return True
 
 def validar_perfil(opcao):
-    return opcao in ("1", "2", "3")
+    perfis = {"1": "Admin", "2": "User", "3": ""}
+    return perfis.get(opcao)
 
 def validar_lista(lista_usuarios):
-        return bool(lista_usuarios)
+        return not lista_usuarios
 
 def validar_confirmacao(valor):
     if valor in ("SIM", "NÃO"):
