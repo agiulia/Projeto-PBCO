@@ -23,6 +23,11 @@ def validar_perfil(opcao):
 def validar_lista(lista_usuarios):
         return bool(lista_usuarios)
 
+def validar_confirmacao(valor):
+    if valor in ("SIM", "NÃO"):
+        return valor
+    return None
+
 def validar_data(data_texto):
     try:
         datetime.strptime(data_texto, '%d/%m/%Y')

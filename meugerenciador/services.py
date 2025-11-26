@@ -36,120 +36,72 @@ def listar_usuarios():
 
     return True, lista_usuarios
 
-def buscar_usuarios():
-    b = input("Digite alguma informação do usuário que deseja encontrar: ")
+def buscar_usuarios(email):
     lista_usuarios = s.ler_usuarios()
 
-    if not lista_usuarios:
-        print("Não há usuários registrados no sistema.")
-        time.sleep(2)
-        return
-    
-    encontrado = any(b == str(v) for i in lista_usuarios for v in i.values())
+    if not u.validar_lista(lista_usuarios):
+        return False, "Não há usuários registrados no sistema."
 
-    if not encontrado:
-        print("Usuário não encontrado.")
-    else:
-        for i in lista_usuarios:
-            for chave in i.keys():
-                if b == i[chave]:
-                    print(f"\n=== Informações Usuário ===\nID: {i['id']}\nNome: {i['nome']}\nE-mail: {i['e-mail']}\nPerfil: {i['perfil']}")
-    time.sleep(2)
+    usuario = next((item for item in lista_usuarios if item.get('e-mail') == email), None)
 
-def atualizar_usuarios():
-    email = input("Digite o e-mail do usuário que deseja atualizar: ")
-    lista_usuarios = s.ler_usuarios()
+    if usuario is None:
+        return False, "Usuário não encontrado."
 
-    usuario = next((u for u in lista_usuarios if u.get('e-mail') == email), None)
+    return True, usuario
+
+def atualizar_usuarios(email, campo, novo_valor):
+    lista = s.ler_usuarios()
+
+    if not u.validar_lista(lista):
+        return False, "Não há usuários registrados."
+
+    usuario = next((x for x in lista if x.get("e-mail") == email), None)
 
     if not usuario:
-        print("Usuário não encontrado.")
-        time.sleep(2)
-        return
+        return False, "Usuário não encontrado."
 
-    print("O que deseja alterar?\n[1] ID\n[2] Nome\n[3] E-mail\n[4] Perfil")
-    o = input("\nOpção: ")
+    if campo == "id":
+        if not u.validar_uid(novo_valor, lista):
+            return False, "ID já existente."
+        usuario["id"] = novo_valor
 
-    if o == "1":
-        while True:
-            uid = input("Digite o novo ID do usuário: ")
-            if srv.validar_uid(uid, lista_usuarios):
-                usuario['id'] = uid
-                break
-            print("Este ID já está em uso. Tente novamente.\n")
-            time.sleep(2)
-    elif o == "2":
-        while True:
-            nome = input("Digite o novo nome: ")
-            if srv.validar_nome(nome):
-                usuario['nome'] = nome
-                break
-            print("Nome inválido. Tente novamente.\n")
-            time.sleep(2)
-    elif o == "3":
-        while True:
-            novo_email = input("Digite o novo e-mail: ")
-            if srv.validar_email(email, lista_usuarios):
-                usuario['e-mail'] = email
-                break
-            print("E-mail inválido ou já registrado. Tente novamente.\n")
-            time.sleep(2)
-    elif o == "4":
-        while True:
-            print("Selecione o novo perfil:\n[1] Admin\n[2] User\n[3] Campo vazio")
-            novo_perfil = input("\nOpção: ")
-            if novo_perfil == "1":
-                usuario['perfil'] = "admin"
-                break
-            elif novo_perfil == "2":
-                usuario['perfil'] = "user"
-                break
-            elif novo_perfil == "3":
-                usuario['perfil'] = ""
-                break
-            else:
-                print("Valor inválido. Tente novamente.")
-                time.sleep(2)
-                continue
-            
+    elif campo == "nome":
+        if not u.validar_nome(novo_valor):
+            return False, "Nome inválido."
+        usuario["nome"] = novo_valor
+
+    elif campo == "email":
+        if not u.validar_email(novo_valor, lista):
+            return False, "E-mail inválido ou já existe."
+        usuario["e-mail"] = novo_valor
+
+    elif campo == "perfil":
+        if not u.validar_perfil(novo_valor):
+            return False, "Perfil inválido."
+        usuario["perfil"] = novo_valor
+
     else:
-        print("Opção inválida.")
-        time.sleep(2)
-        return
+        return False, "Campo inválido."
 
-    s.gravar_usuarios(lista_usuarios)
-    print(f"\nUsuário atualizado com sucesso!\nID: {usuario['id']}\nNome: {usuario['nome']}\nE-mail: {usuario['e-mail']}\n")
-    time.sleep(2)
+    s.gravar_usuarios(lista)
+    return True, usuario
 
-def remover_usuarios():
-    email = input("Digite o e-mail do usuário que deseja remover: ")
+def remover_usuarios(email):
     lista_usuarios = s.ler_usuarios()
     novos_usuarios = [u for u in lista_usuarios if u.get('e-mail') != email]
     if len(novos_usuarios) == len(lista_usuarios):
-        print("Usuário não encontrado.")
-        time.sleep(2)
+        return False, f"Usuário com e-mail '{email}' não encontrado."
     else:
         s.gravar_usuarios(novos_usuarios)
-        print(f"Usuário com e-mail '{email}' removido com sucesso!")
-        time.sleep(2)
+        return True, "Usuário com e-mail '{email}' removido com sucesso!"
 
-def limpar_usuarios():
-    while True:
-        i = input("Você quer excluir todos os dados permanentemente? (SIM/NÃO): ").strip().upper()
-        if i == "SIM":
-            novos_usuarios = []
-            s.gravar_usuarios(novos_usuarios)
-            print("Arquivo limpo com sucesso!")
-            time.sleep(2)
-            break
-        elif i == "NÃO":
-            print("Operação cancelada.")
-            time.sleep(2)
-            break
-        else:
-            print("Opção Inválida. Tente novamente.\n")
-            time.sleep(2)
-            continue
+def limpar_usuarios(confirmacao):
+    if confirmacao == "NÃO":
+        return False, "Operação cancelada."
+    if confirmacao == "SIM":
+        s.gravar_usuarios([])
+        return True, "Arquivo limpo com sucesso!"
+    return False, "Confirmação inválida."
 
 def inserir_projetos (projeto):
     while True :
