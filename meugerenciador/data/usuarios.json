@@ -1,1 +1,8 @@
-[]
+[
+    {
+        "id": "3",
+        "nome": "Lucas",
+        "e-mail": "Lucasgab@gmail.com",
+        "perfil": true
+    }
+]
