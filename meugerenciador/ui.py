@@ -1,4 +1,5 @@
 import services as srv
+import storage as s
 import time
 
 def ms_iu():
@@ -73,6 +74,30 @@ def menu_projetos():
             print("\nValor inválido. Tente novamente.")
             time.sleep(2)
 
+def menu_tarefas():
+    tarefas = s.ler_tarefas()
+
+    while True:
+        print ("\n=== TAREFAS ===\n""[1] Inserir tarefa\n""[2] Listar todas as tarefas\n[3] Buscar tarefa\n[4] Atualizar dados de uma tarefa\n[5] Remover uma tarefa\n[6] Remover TODAS as tarefas\n[0] Sair")
+        o = input("\nOpção: ")
+        if o == '0':
+            break
+        elif o =='1':
+            srv.inserir_tarefas(tarefas)
+        elif o =='2':
+            srv.listar_tarefas(tarefas)
+        elif o =='3':
+            srv.buscar_tarefas (tarefas)
+        elif o =='4':
+            srv.atualizar_tarefas (tarefas)
+        elif o =='5':
+            srv.remover_tarefas(tarefas)
+        elif o == '6':
+            srv.limpar_tarefas(tarefas)
+        else:
+            print("\nValor inválido. Tente novamente.")
+            time.sleep(2)
+
 def menu():
     while True:
         print("\n=== MENU ===\nQue parte deseja acessar?\n[1] Usuários\n[2] Projetos\n[3] Tarefas\n")
@@ -82,7 +107,7 @@ def menu():
         elif (o =="2" ):
             print(menu_projetos())
         elif (o == "3"):
-            print("Estamos trabalhando nisso no momento.")
+            print(menu_tarefas())
         else:
             print("Valor Inválido.")
             time.sleep(2)

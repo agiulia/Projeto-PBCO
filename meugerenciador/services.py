@@ -36,7 +36,6 @@ def listar_usuarios():
 
     return True, lista_usuarios
 
-
 def buscar_usuarios():
     b = input("Digite alguma informação do usuário que deseja encontrar: ")
     lista_usuarios = s.ler_usuarios()
@@ -152,7 +151,7 @@ def limpar_usuarios():
             time.sleep(2)
             continue
 
-def inserir_projetos ():
+def inserir_projetos (projeto):
     while True :
         id=input('digite o ID do dono do projeto:').strip()
         if id  in projeto['ID']:
@@ -206,7 +205,7 @@ def listar_projetos():
         print(f"Nome: {item['nome']}\nDescrição: {item['descricao']}\nID Responsável: {item['id']}\nData Início: {item['inicial']}\nData Fim: {item['fim']}\n")
     time.sleep(2)
 
-def buscar_projetos ():
+def buscar_projetos(projeto):
     while True:
         print ('como voce prefere buscar seu projeto: \n[1] por ID \n[2] por nome \n[3] por descrição \n[4] por data de início \n[5] por data de fim\n[0] sair da busca')
         menu_busca=input ('digite uma opção:')
@@ -259,7 +258,7 @@ def buscar_projetos ():
                     if projeto['data_inicio'].count(data_i)>1 :
                         repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID por exemplo?(digite 1 para sim e 2 para não)').strip()
                         if repetido=='1':
-                            print (buscar())
+                            print (buscar_projetos (projeto))
                             break
                         elif repetido=='2':
                             print('então não posso te ajudar. Desculpe')
@@ -285,7 +284,7 @@ def buscar_projetos ():
                     if projeto['data_fim'].count(data_f)>1 :
                         repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID do dono do projeto por exemplo?(digite 1 para sim e 2 para não)').strip()
                         if repetido=='1':
-                            print (buscar())
+                            print (buscar_projetos (projeto))
                             break
                         elif repetido=='2':
                             print('então não posso te ajudar. Desculpe')
@@ -310,8 +309,8 @@ def buscar_projetos ():
         else:
              print ('voce digitou nenhuma alternativa')
              
-def atualizar_projetos ():
-    print(buscar())
+def atualizar_projetos (projeto):
+    print(buscar_projetos (projeto))
     while True:
         print('qual parte do seu projeto voce gostaria de atualizar?. \n[1] Nome, \n[2] descrição, \n[3] data de início, \n[4] data de fim \n[0] sair da atualização')
         atualizar_projeto = input('digite uma opção:')
@@ -356,7 +355,7 @@ def atualizar_projetos ():
                 else:
                     print('Data final não encontrada!')
 
-def remover_projetos ():
+def remover_projetos (projeto):
     remover = input('Digite o nome do projeto que voce gostaria de remover:').lower().strip()
     if remover in projeto['nome']:
         indice_remover = projeto['nome'].index(remover)
@@ -366,6 +365,192 @@ def remover_projetos ():
     else:
          print('projeto não encontrado')
 
-def limpar_projetos():
+def limpar_projetos(projeto):
      for chave in projeto:
         projeto[chave].clear()
+
+def VERIFICAR_ATRASO(tarefa):
+    if tarefa['prazo'] < datetime.now().date() and tarefa['status'] != "CONCLUÍDA":
+        return True
+    else:
+        return False
+
+def inserir_tarefas(TAREFAS):
+    título_tarefa = input(
+        "\nDigite o título da tarefa que deseja adicionar: ")
+
+    if (título_tarefa != ''):
+        status_tarefa = input(
+            f"Informe os status da tarefa (Pendente, Em andamento ou Concluída): ").upper()
+
+        while (status_tarefa != "PENDENTE" and status_tarefa != "EM ANDAMENTO" and status_tarefa != "CONCLUÍDA"):
+            status_tarefa = input(
+                f"ERRO! Informe os status da tarefa novamente com 'Pendente', 'Em andamento' ou 'Concluída': ").upper()
+
+        responsável_tarefa = input(
+            "Digite o nome do responsável pela tarefa: ")
+        prazo_texto = input(
+            "Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
+
+        while True:
+            try:
+                prazo_tarefa = datetime.strptime(
+                    prazo_texto, "%d/%m/%Y").date()
+                break
+            except ValueError:
+                print("Data inválida! Tente novamente.\n")
+                prazo_texto = input(
+                    "Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
+
+        TAREFAS[título_tarefa] = {
+            "status": status_tarefa,
+            "responsável": responsável_tarefa,
+            "prazo": prazo_tarefa
+        }
+        
+        s.gravar_tarefas(TAREFAS)
+        print("Tarefa salva.\n")
+    else:
+        print("O nome está vazio. Digite algo válido!\n")
+
+def listar_tarefas(TAREFAS):
+    if (TAREFAS == {}):
+        print("\nA lista está vazia!\n")
+    else:
+        print()
+        print("-" * 30)
+
+        for título, dados in TAREFAS.items():
+            print(f"Tarefa: {título}")
+            print(f"Status: {dados['status']}")
+            print(f"Responsável: {dados['responsável']}")
+
+            if VERIFICAR_ATRASO(dados):
+                print(f"Prazo: {dados['prazo']} (Atrasada)")
+            else:
+                print(f"Prazo: {dados['prazo']}")
+            print("-" * 30)
+
+        print()
+
+
+def buscar_tarefas(TAREFAS):
+    if (TAREFAS == {}):
+        print(
+            "\nA lista de tarefas está vazia! Portanto, não há opções possíveis aqui\n")
+    else:
+        título_tarefa = input(
+            "\nDigite o título da tarefa que deseja buscar informações: ")
+
+        if (título_tarefa not in TAREFAS):
+            print("ERRO! Tarefa não encontrada!\n")
+
+        else:
+            tarefa = TAREFAS[título_tarefa]
+            print("\n>>>>> RESULTADOS ENCONTRADOS <<<<<")
+            print(f"{'-' * 30}\nTarefa: {título_tarefa}")
+            print(f"Status: {tarefa['status']}")
+            print(f"Responsável: {tarefa['responsável']}")
+
+            if (VERIFICAR_ATRASO(tarefa)):
+                print(f"Prazo: {tarefa['prazo']} (Atrasada)\n{'-' * 30}\n")
+            else:
+                print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
+
+def atualizar_tarefas(TAREFAS):
+    if (TAREFAS == {}):
+        print("\nA lista de tarefas está vazia! Portanto, não há opções possíveis aqui\n")
+    else:
+        título_tarefa = input("\nDigite o título da tarefa que deseja alterar os dados: ")
+
+        if (título_tarefa not in TAREFAS):
+            print("ERRO! Tarefa não encontrada!\n")
+        else:
+            tarefa = TAREFAS[título_tarefa]
+
+            print("\n>>>>> PARCIAL <<<<<")
+            print(f"{'-' * 30}\nTarefa: {título_tarefa}")
+            print(f"Status: {tarefa['status']}")
+            print(f"Responsável: {tarefa['responsável']}")
+
+            if (VERIFICAR_ATRASO(tarefa)):
+                print(f"Prazo: {tarefa['prazo']} (Atrasada)\n{'-' * 30}\n")
+            else:
+                print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
+
+            print("O que você deseja atualizar?\n[1] Título Tarefa\n[2] Status Tarefa\n[3] Responsável da Tarefa\n[4] Prazo da Tarefa")
+            escolha = input("Opção: ")
+
+            if (escolha == '1'):
+                novo_título = input("\nDigite o novo título da tarefa: ")
+                if (novo_título != ''):
+                    TAREFAS[novo_título] = tarefa.copy()
+                    del TAREFAS[título_tarefa]
+                    print("Título atualizado com sucesso!\n")
+                else:
+                    print("O nome está vazio. Digite algo válido!\n")
+
+            elif (escolha == '2'):
+                novo_status = input("\nDigite a atualização do status da tarefa: ").upper()
+                while (novo_status not in ["PENDENTE", "EM ANDAMENTO", "CONCLUÍDA"]):
+                    novo_status = input(">>> ERRO! Status inválido. Digite novamente: ").upper()
+
+                tarefa["status"] = novo_status
+                print("Status atualizado com sucesso!\n")
+
+            elif (escolha == '3'):
+                novo_resp = input("\nDigite o novo responsável pela tarefa: ")
+                tarefa["responsável"] = novo_resp
+                print("Responsável atualizado com sucesso!\n")
+
+            elif (escolha == '4'):
+                while True:
+                    prazo_texto = input("\nDigite o novo prazo (DD/MM/AAAA): ")
+                    try:
+                        novo_prazo = datetime.strptime(prazo_texto, "%d/%m/%Y").date()
+                        break
+                    except ValueError:
+                        print(">>> Data inválida! Tente novamente.")
+
+                tarefa["prazo"] = novo_prazo
+                print("Prazo atualizado com sucesso!\n")
+
+            else:
+                print("\n>>> ERRO! Por favor, digite uma opção válida de 1 a 4 <<<\n")
+        s.gravar_tarefas(TAREFAS)
+
+
+def remover_tarefas(TAREFAS):
+    if (TAREFAS == {}):
+        print(
+            "\nA lista de tarefas está vazia! Portanto, não há opções possíveis aqui\n")
+    else:
+        título_tarefa=input(
+            "\nDigite o título da tarefa que deseja remover: ")
+
+        if (título_tarefa in TAREFAS):
+            del TAREFAS[título_tarefa]
+            print()
+        else:
+            print(
+                "O título dessa tarefa não existe. Verifique se digitou corretamente ou se salvou com outro nome\n")
+        s.gravar_tarefas(TAREFAS)
+
+
+def limpar_tarefas(TAREFAS):
+    if (TAREFAS == {}):
+        print(
+            "\nA lista de tarefas está vazia! Portanto, não há opções possíveis aqui\n")
+    else:
+        escolha=input(
+            "\nTem certeza que deseja seguir? Lembre-se TODAS AS TAREFAS serão excluídas PERMANENTEMENTE: ").upper()
+        if (escolha == 'S' or escolha == 'SIM' or escolha == "SS"):
+            TAREFAS.clear()
+            print("\nTodos as tarefas foram removidas.\n")
+
+        elif (escolha == 'N' or escolha == 'NÃO' or escolha == 'NAO' or escolha == 'NN'):
+            print("OK, saindo dessa opção...\n")
+
+        else:
+            print("Vou entender isso como um 'não'. Mas, se você quiser realmente excluir todas as tarefas, volte aqui e escreva sim\n")
+        s.gravar_tarefas(TAREFAS)
