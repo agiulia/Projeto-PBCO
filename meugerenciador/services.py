@@ -103,210 +103,92 @@ def limpar_usuarios(confirmacao):
         return True, "Arquivo limpo com sucesso!"
     return False, "Confirmação inválida."
 
-def inserir_projetos (projeto):
-    while True :
-        id=input('digite o ID do dono do projeto:').strip()
-        if id  in projeto['ID']:
-            print('ERRO!, Nome ja existente')
-        elif id not in projeto['ID']:
-            projeto['ID'].append (id)
-            break
+import storage as s
+from datetime import datetime
 
+def inserir_projetos(lista):
+    uid = input("Digite o ID do dono do projeto: ")
+    nome = input("Digite o nome do projeto: ")
+    descricao = input("Faça uma leve descrição do projeto: ")
 
-    while True:
-        nome_projeto=input("digite o nome do projeto:").strip ().lower()
-        if nome_projeto in projeto['nome']:
-             print('ERRO!, Nome ja existente')
-        elif nome_projeto not in projeto['nome']:
-             projeto['nome'].append (nome_projeto)
-             break
-    while True:
-        descriçao_projeto=input("faça uma leve descrição do  projeto:"). strip().lower()
-        projeto['descriçao'].append (descriçao_projeto)
-        print('Descrição do projeto inserida corretamente')
-        break
-
-       
     while True:
         try:
-            data_inicio = input("de a data de início:").strip()
-            data_fim= input("de a data de fim:").strip()
-            data_inicio=datetime.strptime(data_inicio,"%d/%m/%Y")
-            data_fim=datetime.strptime(data_fim,"%d/%m/%Y")
-            if data_inicio> data_fim :
-                print ('data iválida digite uma nova data')
-            else:
-                print ('data válida')
-                print ('\n data adiconada com sucesso')
-                break
-        except ValueError:
-                print ('Erro: Formato inválido! Use dd/mm/aaaa (ex: 25/12/2025)\n')
+            inicio = datetime.strptime(input("Digite a data de início (DD/MM/AAAA): "), "%d/%m/%Y").date()
+            fim = datetime.strptime(input("Digite a data de fim (DD/MM/AAAA): "), "%d/%m/%Y").date()
+            break
+        except:
+            print("Erro: Formato inválido! Use DD/MM/AAAA")
 
-    projeto['data_inicio'].append(data_inicio)
-    projeto['data_fim'].append (data_fim)
-    return 'o projeto foi inserido corretamente'
+    projeto = {
+        "id": uid,
+        "nome": nome,
+        "descricao": descricao,
+        "inicio": inicio,
+        "fim": fim
+    }
 
-def listar_projetos():
-    lista_projetos = s.ler_projetos()
-    if not lista_projetos:
-        print("\nNão há projetos registrados no sistema.\n")
-        time.sleep(2)
+    lista.append(projeto)
+    s.gravar_projetos(lista)
+    print("Projeto inserido com sucesso!")
+
+def listar_projetos(lista):
+    if not lista:
+        print("\nNão há projetos cadastrados.\n")
         return
     print("\n=== Lista de Projetos ===\n")
-    for item in lista_projetos:
-        print(f"Nome: {item['nome']}\nDescrição: {item['descricao']}\nID Responsável: {item['id']}\nData Início: {item['inicial']}\nData Fim: {item['fim']}\n")
-    time.sleep(2)
+    for item in lista:
+        print(f"ID: {item['id']}\nNome: {item['nome']}\nDescrição: {item['descricao']}\nData Início: {item['inicio'].strftime('%d/%m/%Y')}\nData Fim: {item['fim'].strftime('%d/%m/%Y')}\n")
 
-def buscar_projetos(projeto):
-    while True:
-        print ('como voce prefere buscar seu projeto: \n[1] por ID \n[2] por nome \n[3] por descrição \n[4] por data de início \n[5] por data de fim\n[0] sair da busca')
-        menu_busca=input ('digite uma opção:')
-        if(menu_busca=='1'):
-            i=input('digite o ID que do projeto que voce deseja achar')
-            if i in projeto['ID']:
-                index_i=projeto['ID'].index (i)
-                print ('projeto encontrado com seucesso')
-                print (projeto['ID'][index_i])
-                print (projeto['nome'][index_i])
-                print (projeto['descrição'][index_i])
-                print (projeto['data_inicio'][index_i])
-                print (projeto['data_fim'][index_i])
+def buscar_projetos(lista):
+    busca = input("Digite o nome ou ID do projeto: ")
+    encontrados = [p for p in lista if p['nome'] == busca or p['id'] == busca]
+    if not encontrados:
+        print("Nenhum projeto encontrado.")
+        return
+    for item in encontrados:
+        print(f"ID: {item['id']}\nNome: {item['nome']}\nDescrição: {item['descricao']}\nData Início: {item['inicio'].strftime('%d/%m/%Y')}\nData Fim: {item['fim'].strftime('%d/%m/%Y')}\n")
+
+def atualizar_projetos(lista):
+    termo = input("Digite o ID do projeto que deseja atualizar: ").strip()
+    projeto = next((p for p in lista if p['id'] == termo), None)
+
+    if not projeto:
+        print("Projeto não encontrado!")
+        return
+
+    print("O que deseja atualizar?")
+    print("[1] Nome\n[2] Descrição\n[3] Data Início\n[4] Data Fim")
+    opcao = input("Opção: ").strip()
+
+    if opcao == "1":
+        projeto['nome'] = input("Digite o novo nome: ").strip()
+    elif opcao == "2":
+        projeto['descricao'] = input("Digite a nova descrição: ").strip()
+    elif opcao == "3":
+        while True:
+            nova_data = input("Digite a nova data de início (DD/MM/AAAA): ").strip()
+            try:
+                datetime.strptime(nova_data, "%d/%m/%Y")
+                projeto['inicio'] = nova_data
                 break
-            else:
-                print('projeto não encontrado digite novamente')
-
-
-        elif (menu_busca=='2'):
-            x=input('digite o nome do projeto que voce deseja buscar:').lower()
-            if x in projeto['nome']:
-                index_x=projeto['nome'].index(x)
-                print ('projeto encontado com sucesso')
-                print (projeto['ID'][index_x])
-                print (projeto['nome'][index_x])
-                print (projeto['descriçao'][index_x])
-                print (projeto['data_inicio'][index_x])
-                print (projeto['data_fim'][index_x])
+            except ValueError:
+                print("Formato inválido!")
+    elif opcao == "4":
+        while True:
+            nova_data = input("Digite a nova data de fim (DD/MM/AAAA): ").strip()
+            try:
+                datetime.strptime(nova_data, "%d/%m/%Y")
+                projeto['fim'] = nova_data
                 break
-            else:
-                print('ERRO!,projeto não encontrado')
-               
-        elif (menu_busca=='3'):
-                y= input('digite a descrição do projeto que voce deseja buscar:').lower().strip()
-                if y in projeto['descriçao']:
-                    index_y=projeto['descriçao'].index(y)
-                    print (projeto['ID'][index_y])
-                    print (projeto['nome'][index_y])
-                    print (projeto['descriçao'][index_y])
-                    print (projeto['data_inicio'][index_y])
-                    print (projeto['data_fim'][index_y])
-                    break
-                else:
-                    print('Projeto não encontrado.')
-                   
-        elif (menu_busca=='4'):
-                data_i= input('Informe o início do projeto que voce deseja buscar: ').strip()
-                data_i=datetime.strptime(data_i,'%d/%m/%Y')
-                while True :
-                    if projeto['data_inicio'].count(data_i)>1 :
-                        repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID por exemplo?(digite 1 para sim e 2 para não)').strip()
-                        if repetido=='1':
-                            print (buscar_projetos (projeto))
-                            break
-                        elif repetido=='2':
-                            print('então não posso te ajudar. Desculpe')
-                            break
-                        else:
-                            print('nenhuma opção válida foi digitada, peço que digite novamente.')
-                if data_i in projeto['data_inicio']:
-                    index_data_i=projeto['data_inicio'].index(data_i)
-                    print ('projeto encontado com sucesso')
-                    print (projeto['ID'][index_data_i])
-                    print (projeto['nome'][index_data_i])
-                    print (projeto['descriçao'][index_data_i])
-                    print (projeto['data_inicio'][index_data_i])
-                    print (projeto['data_fim'][index_data_i])
-                    break
-                else:
-                    print('Projeto não encontrado. Tente novamente.')
+            except ValueError:
+                print("Formato inválido!")
+    else:
+        print("Opção inválida!")
+        return
 
-        elif (menu_busca=='5'):
-                data_f= input('de a data de fim do projeto:').strip()
-                data_f=datetime.strptime(data_f,'%d/%m/%Y')
-                while True :
-                    if projeto['data_fim'].count(data_f)>1 :
-                        repetido=input('temos mais de um projeto com esse.Pderia dar alguma informasção única como nome ou ID do dono do projeto por exemplo?(digite 1 para sim e 2 para não)').strip()
-                        if repetido=='1':
-                            print (buscar_projetos (projeto))
-                            break
-                        elif repetido=='2':
-                            print('então não posso te ajudar. Desculpe')
-                            break
-                        else:
-                            print('nenhuma opção válida foi digitada, peço que digite novamente.')
-
-
-                if data_f in projeto['data_fim']:
-                    index_data_f=projeto['data_fim'].index(data_f)
-                    print ('projeto encontado com sucesso')
-                    print (projeto['nome'][index_data_f])
-                    print (projeto['descriçao'][index_data_f])
-                    print (projeto['data_inicio'][index_data_f])
-                    print (projeto['data_fim'][index_data_f])
-                    break
-                else:
-                    print('ERRO!,projeto não encontrado')
-                   
-        elif(menu_busca=='0'):
-             break
-        else:
-             print ('voce digitou nenhuma alternativa')
-             
-def atualizar_projetos (projeto):
-    print(buscar_projetos (projeto))
-    while True:
-        print('qual parte do seu projeto voce gostaria de atualizar?. \n[1] Nome, \n[2] descrição, \n[3] data de início, \n[4] data de fim \n[0] sair da atualização')
-        atualizar_projeto = input('digite uma opção:')
-        if (atualizar_projeto=='0'):
-            break
-        while True :    
-            antigo_nome=input('digite o nome do projeto que voce deseja substituir').strip().lower()
-            if(antigo_nome in projeto['nome']):
-                index_x= projeto['nome'].index(antigo_nome)
-                x1= input('digite o novo nome do projeto').strip().lower()
-                projeto['nome'][index_x]=x1
-                print ('nome do projeto substituido perfeitamente')
-                break
-
-            elif (atualizar_projeto== '2'):
-                antiga_descricao=input('digite a   descrição  que voce deseja substituir:').strip().lower()
-                if( antiga_descricao in projeto['descrição']):
-                    index_d= projeto['descrição'].index(antiga_descricao)
-                    x2= input('digite o novo nome da descrição').strip().lower()
-                    projeto['descrição'][index_d]=x2
-                    print ('descrição do projeto substituida perfeitamente')
-                    break
-
-                elif (atualizar_projeto== '3'):
-                    antiga_data_i=input('digite a da data inicial  que voce deseja substituir:(formato DD/MM/AAAA)')
-                    if( antiga_data_i in projeto['data_inicio']):
-                        index_data_i= projeto['data_inicio'].index(antiga_data_i)
-                        x3= input('digite a nova data inicial formato DD/MM/AAAA').strip()
-                        x33=datetime.strptime(x3,"%d/%m/%Y")
-                        projeto['data_inicio'][index_data_i]=x33
-                        print ('data inicial do projeto substituida perfeitamente')
-                        break
-                elif atualizar_projeto == '4':
-                    antiga_data_f = input('Digite a data final que deseja substituir (DD/MM/AAAA): ').strip()
-   
-                if antiga_data_f in projeto['data_fim']:
-                    index_data_f = projeto['data_fim'].index(antiga_data_f)
-                    projeto['data_fim'][index_data_f] = datetime.strptime(
-                    input('Digite a nova data final (DD/MM/AAAA): ').strip(),"%d/%m/%Y")
-                    print('Data final do projeto substituída perfeitamente!')
-                    break
-                else:
-                    print('Data final não encontrada!')
-
+    s.gravar_projetos(lista)
+    print("Projeto atualizado com sucesso!")
+    
 def remover_projetos (projeto):
     remover = input('Digite o nome do projeto que voce gostaria de remover:').lower().strip()
     if remover in projeto['nome']:
@@ -317,9 +199,15 @@ def remover_projetos (projeto):
     else:
          print('projeto não encontrado')
 
-def limpar_projetos(projeto):
-     for chave in projeto:
-        projeto[chave].clear()
+def limpar_projetos(lista):
+    resposta = input("Você quer excluir todos os projetos permanentemente? (SIM/NÃO): ").strip().upper()
+    if resposta == "SIM":
+        lista.clear()
+        s.gravar_projetos(lista)
+        print("Todos os projetos foram removidos.")
+    else:
+        print("Ação cancelada.")
+
 
 def VERIFICAR_ATRASO(tarefa):
     if tarefa['prazo'] < datetime.now().date() and tarefa['status'] != "CONCLUÍDA":
@@ -328,42 +216,37 @@ def VERIFICAR_ATRASO(tarefa):
         return False
 
 def inserir_tarefas(TAREFAS):
-    título_tarefa = input(
-        "\nDigite o título da tarefa que deseja adicionar: ")
-
-    if (título_tarefa != ''):
-        status_tarefa = input(
-            f"Informe os status da tarefa (Pendente, Em andamento ou Concluída): ").upper()
-
-        while (status_tarefa != "PENDENTE" and status_tarefa != "EM ANDAMENTO" and status_tarefa != "CONCLUÍDA"):
-            status_tarefa = input(
-                f"ERRO! Informe os status da tarefa novamente com 'Pendente', 'Em andamento' ou 'Concluída': ").upper()
-
-        responsável_tarefa = input(
-            "Digite o nome do responsável pela tarefa: ")
-        prazo_texto = input(
-            "Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
-
-        while True:
-            try:
-                prazo_tarefa = datetime.strptime(
-                    prazo_texto, "%d/%m/%Y").date()
-                break
-            except ValueError:
-                print("Data inválida! Tente novamente.\n")
-                prazo_texto = input(
-                    "Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
-
-        TAREFAS[título_tarefa] = {
-            "status": status_tarefa,
-            "responsável": responsável_tarefa,
-            "prazo": prazo_tarefa
-        }
-        
-        s.gravar_tarefas(TAREFAS)
-        print("Tarefa salva.\n")
+    título_tarefa = input("\nDigite o título da tarefa que deseja adicionar: ").upper()
+    while (título_tarefa == "" or título_tarefa in TAREFAS):
+        if (título_tarefa in TAREFAS):
+            título_tarefa = input("\n>>> ERRO! Tarefa já existente.\nDigite outro título para a tarefa: ")
+        else:
+            título_tarefa = input("\n>>> ERRO! O nome está vazio.\nDigite algo válido para o título da tarefa: ")
+    status_tarefa = input(f"Informe os status da tarefa (Pendente, Em andamento ou Concluída): ").upper()
+    while (status_tarefa != "PENDENTE" and status_tarefa != "EM ANDAMENTO" and status_tarefa != "CONCLUÍDA" and status_tarefa != "CONCLUIDA"):
+        status_tarefa = input(f">>> ERRO! Tente novamente.\nInforme os status da tarefa novamente com 'Pendente', 'Em andamento' ou 'Concluída': ").upper()
+    if (status_tarefa == "EM ANDAMENTO"):
+        status_tarefa = "Em andamento"
+    elif (status_tarefa == "PENDENTE"):
+        status_tarefa = "Pendente"
     else:
-        print("O nome está vazio. Digite algo válido!\n")
+        status_tarefa = "Concluída"
+    responsável_tarefa = input("Digite o nome do responsável pela tarefa: ")
+    prazo_texto = input("Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
+    while True:
+        try:
+            prazo_tarefa = datetime.strptime(prazo_texto, "%d/%m/%Y").date()
+            break
+        except ValueError:
+            print(">>> Data inválida! Tente novamente.\n")
+            prazo_texto = input("Digite o prazo dessa tarefa no formato DD/MM/AAAA: ")
+    TAREFAS[título_tarefa] = {
+        "status": status_tarefa,
+        "responsável": responsável_tarefa,
+        "prazo": prazo_tarefa
+    }
+    s.gravar_tarefas(TAREFAS)
+    print("Tarefa salva.\n")
 
 def listar_tarefas(TAREFAS):
     if (TAREFAS == {}):

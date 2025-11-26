@@ -142,23 +142,25 @@ def menu_usuarios():
             time.sleep(2)
 
 def menu_projetos():
+    projetos = s.ler_projetos()
+
     while True:
         print ("\n=== PROJETOS ===\n""[1] Inserir projeto\n""[2] Listar todos os projetos\n[3] Buscar projeto\n[4] Atualizar dados de um projeto\n[5] Remover um projeto\n[6] Remover TODOS os projetos\n[0] Sair")
         o = input("\nOpção: ")
         if o == '0':
             break
         elif o =='1':
-            srv.inserir_projetos()
+            srv.inserir_projetos(projetos)
         elif o =='2':
-            srv.listar_projetos()
+            srv.listar_projetos(projetos)
         elif o =='3':
-            srv.buscar_projetos ()
+            srv.buscar_projetos (projetos)
         elif o =='4':
-            srv.atualizar_projetos ()
+            srv.atualizar_projetos (projetos)
         elif o =='5':
-            srv.remover_projetos()
+            srv.remover_projetos(projetos)
         elif o == '6':
-            srv.limpar_projetos()
+            srv.limpar_projetos(projetos)
         else:
             print("\nValor inválido. Tente novamente.")
             time.sleep(2)
@@ -192,11 +194,11 @@ def menu():
         print("\n=== MENU ===\nQue parte deseja acessar?\n[1] Usuários\n[2] Projetos\n[3] Tarefas\n")
         o = input("\nOpção: ")
         if (o == "1"):
-            print(menu_usuarios())
+            menu_usuarios()
         elif (o =="2" ):
-            print(menu_projetos())
+            menu_projetos()
         elif (o == "3"):
-            print(menu_tarefas())
+            menu_tarefas()
         else:
             print("Valor Inválido.")
             time.sleep(2)

@@ -22,4 +22,4 @@ def nova_tarefa(titulo, projeto, responsavel, status, prazo):
         "responsavel": responsavel,
         "status": status,
         "prazo": prazo
-    } 
+    }
