@@ -2,7 +2,7 @@ def novo_usuario(uid, nome, email, perfil):
     return {
         "id": uid,
         "nome": nome,
-        "e-mail": email,
+        "email": email,
         "perfil": perfil
     }
 

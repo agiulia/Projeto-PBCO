@@ -2,7 +2,6 @@ import storage as s
 import services as srv
 import models as m
 import utils as u
-import time
 from datetime import datetime
 
 def inserir_usuario(uid, nome, email, perfil_opcao): 
@@ -31,7 +30,7 @@ def inserir_usuario(uid, nome, email, perfil_opcao):
 def listar_usuarios():
     lista_usuarios = s.ler_usuarios()
 
-    if u.validar_lista(lista_usuarios):
+    if not u.validar_lista(lista_usuarios):
         return False, "Não há usuários registrados no sistema."
 
     return True, lista_usuarios
@@ -42,7 +41,7 @@ def buscar_usuarios(email):
     if not u.validar_lista(lista_usuarios):
         return False, "Não há usuários registrados no sistema."
 
-    usuario = next((item for item in lista_usuarios if item.get('e-mail') == email), None)
+    usuario = next((item for item in lista_usuarios if item.get('email') == email), None)
 
     if usuario is None:
         return False, "Usuário não encontrado."
@@ -55,14 +54,15 @@ def atualizar_usuarios(email, campo, novo_valor):
     if not u.validar_lista(lista):
         return False, "Não há usuários registrados."
 
-    usuario = next((x for x in lista if x.get("e-mail") == email), None)
+    usuario = next((x for x in lista if x.get("email") == email), None)
 
     if not usuario:
         return False, "Usuário não encontrado."
 
     if campo == "id":
-        if not u.validar_uid(novo_valor, lista):
-            return False, "ID já existente."
+        if usuario["id"] != novo_valor:
+            if not u.validar_uid(novo_valor, [x for x in lista if x != usuario]):
+                return False, "ID já existente."
         usuario["id"] = novo_valor
 
     elif campo == "nome":
@@ -71,9 +71,10 @@ def atualizar_usuarios(email, campo, novo_valor):
         usuario["nome"] = novo_valor
 
     elif campo == "email":
-        if not u.validar_email(novo_valor, lista):
-            return False, "E-mail inválido ou já existe."
-        usuario["e-mail"] = novo_valor
+        if usuario["email"] != novo_valor:
+            if not u.validar_email(novo_valor, [x for x in lista if x != usuario]):
+                return False, "E-mail inválido ou já existe."
+        usuario["email"] = novo_valor
 
     elif campo == "perfil":
         if not u.validar_perfil(novo_valor):
@@ -88,12 +89,12 @@ def atualizar_usuarios(email, campo, novo_valor):
 
 def remover_usuarios(email):
     lista_usuarios = s.ler_usuarios()
-    novos_usuarios = [u for u in lista_usuarios if u.get('e-mail') != email]
+    novos_usuarios = [usuario for usuario in lista_usuarios if usuario.get('email') != email]
     if len(novos_usuarios) == len(lista_usuarios):
         return False, f"Usuário com e-mail '{email}' não encontrado."
     else:
         s.gravar_usuarios(novos_usuarios)
-        return True, "Usuário com e-mail '{email}' removido com sucesso!"
+        return True, f"Usuário com e-mail '{email}' removido com sucesso!"
 
 def limpar_usuarios(confirmacao):
     if confirmacao == "NÃO":
@@ -267,13 +268,6 @@ def limpar_projetos(lista):
     else:
         print("Ação cancelada!")
 
-
-def VERIFICAR_ATRASO(tarefa):
-    if tarefa['prazo'] < datetime.now().date() and tarefa['status'] != "CONCLUÍDA":
-        return True
-    else:
-        return False
-
 def inserir_tarefas(TAREFAS):
     while True:
         tarefa_id = input("\nDigite o ID da tarefa: ").strip()
@@ -346,11 +340,7 @@ def listar_tarefas(TAREFAS):
         print(f"Projeto ID: {dados['projeto_id']}")
         print(f"Status: {dados['status']}")
         print(f"Responsável: {dados.get('responsável_id', '—')}")
-
-        if VERIFICAR_ATRASO(dados):
-            print(f"Prazo: {dados['prazo']} (Atrasada)")
-        else:
-            print(f"Prazo: {dados['prazo']}")
+        print(f"Prazo: {dados['prazo']}")
 
         print("-" * 30)
 
@@ -375,11 +365,7 @@ def buscar_tarefas(TAREFAS):
     print(f"Projeto ID: {tarefa['projeto_id']}")
     print(f"Status: {tarefa['status']}")
     print(f"Responsável ID: {tarefa.get('responsável_id', '—')}")
-
-    if VERIFICAR_ATRASO(tarefa):
-        print(f"Prazo: {tarefa['prazo']} (Atrasada)\n{'-' * 30}\n")
-    else:
-        print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
+    print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
 
 def atualizar_tarefas(TAREFAS):
     if (TAREFAS == {}):
@@ -396,10 +382,7 @@ def atualizar_tarefas(TAREFAS):
             print(f"Projeto ID: {tarefa['projeto_id']}")
             print(f"Status: {tarefa['status']}")
             print(f"Responsável ID: {tarefa.get('responsável_id', '—')}")
-            if (VERIFICAR_ATRASO(tarefa)):
-                print(f"Prazo: {tarefa['prazo']} (Atrasada)\n{'-' * 30}\n")
-            else:
-                print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
+            print(f"Prazo: {tarefa['prazo']}\n{'-' * 30}\n")
 
             print("O que você deseja atualizar?\n[1] Título Tarefa\n[2] Status Tarefa\n[3] ID do Responsável da Tarefa\n[4] Prazo da Tarefa\n[5] Projeto da Tarefa")
             escolha = input("Opção: ")

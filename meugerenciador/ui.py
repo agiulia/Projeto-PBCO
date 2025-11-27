@@ -2,6 +2,7 @@ import services as srv
 import utils as u
 import storage as s
 import time
+import reports as r
 
 def ms_iu():
     uid = input("Digite o ID do usuário: ").strip()
@@ -17,7 +18,7 @@ def ms_iu():
     time.sleep(2)
 
 def ms_lu():
-    sucesso, resultado = srv.listar_usuarios_service()
+    sucesso, resultado = srv.listar_usuarios()
 
     if not sucesso:
         print("\nNão há usuários registrados no sistema.\n")
@@ -26,30 +27,29 @@ def ms_lu():
 
     print("\n=== Lista de Usuários ===\n")
     for item in resultado:
-        print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
+        print(f"ID: {resultado['id']}")
+        print(f"Nome: {resultado['nome']}")
+        print(f"E-mail: {resultado['email']}")
+        print(f"Perfil: {resultado['perfil']}\n")
 
     print("\nUsuários listados com sucesso.\n")
     time.sleep(2)
 
 def ms_bu():
-    b = input("Digite o e-mail do usuário que deseja encontrar: ")
+    b = input("Digite o e-mail do usuário que deseja encontrar: ").strip()
     sucesso, resultado = srv.buscar_usuarios(b)
 
     if not sucesso:
-        print("\nNão há usuários registrados no sistema.\n")
+        print(f"\n{resultado}\n")  
         time.sleep(2)
         return
 
-    if not resultado:
-        print("\nNenhum usuário encontrado com as informações fornecidas.\n")
-        time.sleep(2)
-        return
+    usuario = resultado 
 
     print("\n=== Usuário Encontrado ===\n")
-    for item in resultado:
-        print(f"ID: {item['id']}\nNome: {item['nome']}\nE-mail: {item['e-mail']}\nPerfil: {item['perfil']}\n")
+    print(f"ID: {usuario['id']}\nNome: {usuario['nome']}\nE-mail: {usuario['email']}\nPerfil: {usuario['perfil']}")
 
-    print("\nBusca concluída com sucesso.\n")
+    print("Busca concluída com sucesso.\n")
     time.sleep(2)
 
 def ms_au():
@@ -94,7 +94,7 @@ def ms_au():
 
     usuario = resposta
     print("\nUsuário atualizado com sucesso!")
-    print(f"ID: {usuario['id']}\nNome: {usuario['nome']}\nE-mail: {usuario['e-mail']}\nPerfil: {usuario['perfil']}")
+    print(f"ID: {usuario['id']}\nNome: {usuario['nome']}\nE-mail: {usuario['email']}\nPerfil: {usuario['perfil']}")
     time.sleep(2)
 
 def ms_ru():
@@ -114,10 +114,98 @@ def ms_lru():
             time.sleep(2)
             continue
 
-        x, mensagem = srv.limpar_usuarios_service(confirmacao)
+        x, mensagem = srv.limpar_usuarios(confirmacao)
         print(mensagem)
         time.sleep(2)
         break
+
+def mostrar_resumo_projetos():
+    resumo = r.resumo_projetos()
+
+    print("\n=== RESUMO POR PROJETO ===\n")
+
+    if not resumo:
+        print("Não há tarefas registradas.\n")
+        time.sleep(2)
+        return
+
+    for projeto, dados in resumo.items():
+        print(f"\n>>> Projeto: {projeto}")
+        print(f"Total de tarefas: {dados['total']}")
+        print(f"Percentual concluído: {dados['percentual_concluido']:.2f}%")
+        print("Status:")
+        for status, qtd in dados["status"].items():
+            print(f"  - {status}: {qtd}")
+        print("-" * 30)
+
+    time.sleep(2)
+
+
+def mostrar_produtividade_usuarios():
+    print("\n=== PRODUTIVIDADE POR USUÁRIO ===\n")
+
+    data_ini = input("Data inicial (dd/mm/yyyy): ").strip()
+    data_fim = input("Data final (dd/mm/yyyy): ").strip()
+
+    if not u.parse_date(data_ini) or not u.parse_date(data_fim):
+        print("\nDatas inválidas. Tente novamente.\n")
+        time.sleep(2)
+        return
+
+    resultado = r.produtividade_usuarios(data_ini, data_fim)
+
+    if "erro" in resultado:
+        print(resultado["erro"])
+        time.sleep(2)
+        return
+
+    if not resultado:
+        print("\nNenhuma tarefa concluída no período informado.\n")
+        time.sleep(2)
+        return
+
+    print("\nTarefas concluídas por usuário:\n")
+    for usuario, qtd in resultado.items():
+        print(f"{usuario}: {qtd}")
+
+    time.sleep(2)
+
+def mostrar_tarefas_atrasadas():
+    print("\n=== TAREFAS ATRASADAS ===\n")
+    atrasadas = r.tarefas_atrasadas()
+
+    if not atrasadas:
+        print("Nenhuma tarefa atrasada.\n")
+        time.sleep(2)
+        return
+
+    for t in atrasadas:
+        print(f"Tarefa: {t.get('titulo', 'Sem título')}")
+        print(f"Responsável: {t.get('responsavel', 'Não informado')}")
+        print(f"Projeto: {t.get('projeto', 'Sem projeto')}")
+        print(f"Prazo: {t.get('prazo', '-')}")
+        print(f"Status atual: {t.get('status', '-')}")
+        print("-" * 30)
+
+    time.sleep(2)
+
+def menu_relatorios():
+    while True:
+        print("\n=== RELATÓRIOS ===\n[1] Resumo por projeto\n[2] Produtividade por usuário\n[3] Tarefas atrasadas\n[0] Sair")
+
+        o = input("Escolha uma opção: ")
+
+        if o == "1":
+            mostrar_resumo_projetos()
+        elif o == "2":
+            mostrar_produtividade_usuarios()
+        elif o == "3":
+            mostrar_tarefas_atrasadas()
+        elif o == "0":
+            break
+        else:
+            print("Opção inválida!")
+            time.sleep(2)
     
 def menu_usuarios():
     while True:
@@ -191,7 +279,7 @@ def menu_tarefas():
 
 def menu():
     while True:
-        print("\n=== MENU ===\nQue parte deseja acessar?\n[1] Usuários\n[2] Projetos\n[3] Tarefas\n")
+        print("\n=== MENU ===\nQue parte deseja acessar?\n[1] Usuários\n[2] Projetos\n[3] Tarefas\n[4] Relatórios\n[0] Sair")
         o = input("\nOpção: ")
         if (o == "1"):
             menu_usuarios()
@@ -199,6 +287,12 @@ def menu():
             menu_projetos()
         elif (o == "3"):
             menu_tarefas()
+        elif (o == "4"):
+            menu_relatorios()
+        elif (o == "0"):
+            print("Saindo do sistema.")
+            time.sleep(2)
+            break
         else:
             print("Valor Inválido.")
             time.sleep(2)
