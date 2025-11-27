@@ -26,28 +26,39 @@ def gravar_usuarios(lista):
         json.dump(lista, arq, indent=4, ensure_ascii=False)
 
 def ler_projetos():
-    if not os.path.exists(c2):
-        return []
     try:
-        with open(c2, 'r', encoding='utf-8') as arq:
-            dados = json.load(arq)
-            for p in dados:
-                p['inicio'] = datetime.strptime(p['inicio'], "%Y-%m-%d").date()
-                p['fim'] = datetime.strptime(p['fim'], "%Y-%m-%d").date()
-            return dados
-    except:
+        with open(c2, "r", encoding="utf-8") as arq:
+            projetos_json = json.load(arq)
+    except FileNotFoundError:
         return []
 
-def gravar_projetos(lista):
-    os.makedirs(os.path.dirname(c2), exist_ok=True)
-    lista_copy = []
-    for p in lista:
-        proj = p.copy()
-        proj['inicio'] = proj['inicio'].strftime("%Y-%m-%d")
-        proj['fim'] = proj['fim'].strftime("%Y-%m-%d")
-        lista_copy.append(proj)
+    projetos = []
+
+    for p in projetos_json:
+        projetos.append({
+            "id": p["id"],
+            "nome": p["nome"],
+            "descricao": p["descricao"],
+            "inicio": datetime.strptime(p["inicio"], "%d/%m/%Y").date() if "/" in p["inicio"] else datetime.strptime(p["inicio"], "%Y-%m-%d").date(),
+            "fim": datetime.strptime(p["fim"], "%d/%m/%Y").date() if "/" in p["fim"] else datetime.strptime(p["fim"], "%Y-%m-%d").date()
+        })
+
+    return projetos
+
+def gravar_projetos(projetos):
+    projetos_json = []
+
+    for proj in projetos:
+        projetos_json.append({
+            "id": proj["id"],
+            "nome": proj["nome"],
+            "descricao": proj["descricao"],
+            "inicio": proj["inicio"].strftime("%Y-%m-%d") if isinstance(proj["inicio"], date) else proj["inicio"],
+            "fim": proj["fim"].strftime("%Y-%m-%d") if isinstance(proj["fim"], date) else proj["fim"]
+        })
+
     with open(c2, 'w', encoding='utf-8') as arq:
-        json.dump(lista_copy, arq, indent=4, ensure_ascii=False)
+        json.dump(projetos_json, arq, indent=4, ensure_ascii=False)
 
 def ler_tarefas():
     if not os.path.exists(c3):
@@ -58,12 +69,14 @@ def ler_tarefas():
             tarefas = {}
             for k, v in dados.items():
                 try:
-                    prazo = datetime.strptime(v.get("prazo",""), "%Y-%m-%d").date()
+                    prazo = datetime.strptime(v.get("prazo", ""), "%Y-%m-%d").date()
                 except:
                     prazo = None
                 tarefas[k] = {
+                    "id": v.get("id", k),
+                    "projeto_id": v.get("projeto_id", "N/A"),  
                     "status": v.get("status", "pendente"),
-                    "responsável": v.get("responsável", "N/A"),
+                    "responsável_id": v.get("responsável", "N/A"),
                     "prazo": prazo
                 }
             return tarefas
@@ -74,9 +87,11 @@ def gravar_tarefas(tarefas):
     tarefas_json = {}
     for k, v in tarefas.items():
         tarefas_json[k] = {
+            "id": v.get("id", k),
+            "projeto_id": v.get("projeto_id", "N/A"),
             "status": v.get("status", "pendente"),
             "responsável": v.get("responsável", "N/A"),
-            "prazo": v.get("prazo").strftime("%Y-%m-%d") if isinstance(v.get("prazo"), (datetime, date)) else str(v.get("prazo",""))
+            "prazo": v.get("prazo").strftime("%Y-%m-%d") if isinstance(v.get("prazo"), (datetime, date)) else str(v.get("prazo", ""))
         }
     with open(c3, 'w', encoding='utf-8') as arq:
         json.dump(tarefas_json, arq, indent=4, ensure_ascii=False)

@@ -15,8 +15,9 @@ def novo_projeto(uid, nome, descricao, inicio, fim):
         "fim": fim
     }
 
-def nova_tarefa(titulo, projeto, responsavel, status, prazo):
+def nova_tarefa(uid,titulo, projeto, responsavel, status, prazo):
     return {
+        "id": uid,
         "titulo": titulo,
         "projeto": projeto,
         "responsavel": responsavel,

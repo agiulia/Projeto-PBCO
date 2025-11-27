@@ -118,7 +118,7 @@ def ms_lru():
         print(mensagem)
         time.sleep(2)
         break
-
+    
 def menu_usuarios():
     while True:
         print("\n=== USUÁRIOS ===\n[1] Inserir usuário\n[2] Listar todos os usuários\n[3] Buscar usuário\n[4] Atualizar dados de um usuário\n[5] Remover um usuário\n[6] Remover TODOS os usuários\n[0] Sair")
